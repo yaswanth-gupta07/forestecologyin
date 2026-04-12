@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Forest gallery placeholder">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a4a39"/>
+      <stop offset="100%" stop-color="#274f44"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="900" fill="url(#sky)"/>
+  <circle cx="960" cy="160" r="86" fill="#efe0b2" opacity="0.72"/>
+  <path d="M0 590 C180 500 320 660 500 590 C680 520 860 660 1200 580 L1200 900 L0 900 Z" fill="#2f6d4f"/>
+  <path d="M0 650 C180 560 300 740 510 650 C700 580 860 730 1200 640 L1200 900 L0 900 Z" fill="#245840"/>
+  <rect x="180" y="320" width="28" height="310" fill="#3f2d20"/>
+  <circle cx="194" cy="280" r="95" fill="#3b7958"/>
+  <rect x="420" y="300" width="34" height="340" fill="#3f2d20"/>
+  <circle cx="437" cy="262" r="104" fill="#4f8d68"/>
+  <rect x="760" y="326" width="30" height="322" fill="#3f2d20"/>
+  <circle cx="775" cy="290" r="98" fill="#3f7c58"/>
+  <rect x="980" y="350" width="28" height="296" fill="#3f2d20"/>
+  <circle cx="994" cy="320" r="86" fill="#4b8764"/>
+</svg>

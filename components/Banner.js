@@ -1,0 +1,1 @@
+// File removed - banner component deleted
