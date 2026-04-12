@@ -12,7 +12,7 @@ export default function CollaboratorsPage() {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState({ name: "", affiliation: "", image_url: "" });
+  const [form, setForm] = useState({ name: "", title: "", affiliation: "", address: "", image_url: "" });
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(null);
 
@@ -38,7 +38,7 @@ export default function CollaboratorsPage() {
 
   function openAdd() {
     setEditing(null);
-    setForm({ name: "", affiliation: "", image_url: "" });
+    setForm({ name: "", title: "", affiliation: "", address: "", image_url: "" });
     setModalOpen(true);
   }
 
@@ -46,7 +46,9 @@ export default function CollaboratorsPage() {
     setEditing(row);
     setForm({
       name: row.name,
+      title: row.title || "",
       affiliation: row.affiliation || "",
+      address: row.address || "",
       image_url: row.image_url || "",
     });
     setModalOpen(true);
@@ -55,7 +57,7 @@ export default function CollaboratorsPage() {
   function closeModal() {
     setModalOpen(false);
     setEditing(null);
-    setForm({ name: "", affiliation: "", image_url: "" });
+    setForm({ name: "", title: "", affiliation: "", address: "", image_url: "" });
   }
 
   async function handleSubmit(e) {
@@ -68,7 +70,9 @@ export default function CollaboratorsPage() {
     try {
       const payload = {
         name: form.name.trim(),
+        title: form.title.trim() || "",
         affiliation: form.affiliation.trim() || "",
+        address: form.address.trim() || "",
         image_url: form.image_url || null,
       };
       if (editing) {
@@ -152,7 +156,8 @@ export default function CollaboratorsPage() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <h3 className="text-sm font-semibold text-gray-800 truncate">{row.name}</h3>
-                  <p className="text-xs text-gray-500 mt-1 line-clamp-2">{row.affiliation}</p>
+                  {row.title ? <p className="text-xs text-forest-700 font-medium mt-0.5 line-clamp-1">{row.title}</p> : null}
+                  <p className="text-xs text-gray-500 mt-1 line-clamp-2 whitespace-pre-line">{row.affiliation}</p>
                 </div>
               </div>
               <div className="flex justify-end gap-1 mt-4 pt-3 border-t border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -194,13 +199,33 @@ export default function CollaboratorsPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Affiliation</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Title / role</label>
             <input
               type="text"
+              value={form.title}
+              onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm"
+              placeholder="e.g. Professor of Ecology"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Organization</label>
+            <textarea
               value={form.affiliation}
               onChange={(e) => setForm((p) => ({ ...p, affiliation: e.target.value }))}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm"
-              placeholder="University / institution"
+              rows={3}
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm resize-y min-h-[4.5rem]"
+              placeholder="Department, institute, division (line breaks allowed)"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Address</label>
+            <textarea
+              value={form.address}
+              onChange={(e) => setForm((p) => ({ ...p, address: e.target.value }))}
+              rows={4}
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm resize-y min-h-[5rem]"
+              placeholder="Postal address (line breaks allowed)"
             />
           </div>
           <div>

@@ -2,6 +2,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { defaultCollaborators } from "@/lib/collaboratorsDefaults";
 import sreenathPhoto from "../../images/team/sreenath.png";
 import sharanaPhoto from "../../images/team/Sharana.jpg";
 import albertPhoto from "../../images/team/Albert.jpg";
@@ -204,6 +205,16 @@ export default function Team() {
     }
   }
 
+  const collaboratorList =
+    collaborators.length > 0
+      ? collaborators.map((row) => ({
+          ...row,
+          title: row.title ?? "",
+          address: row.address ?? "",
+          affiliation: row.affiliation ?? "",
+        }))
+      : defaultCollaborators;
+
   const allTeamMembers = [
     ...teamMembers,
     ...dbMembers.map((m) => ({
@@ -312,37 +323,47 @@ export default function Team() {
         <h2 className="text-4xl font-semibold text-[#E8F8EE] md:text-6xl">Collaborators</h2>
       </motion.div>
 
-      <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {collaborators.length === 0 ? (
-          <p className="col-span-full text-sm text-[#C8E9D7]/80">
-            Collaborators will appear here once they are added in the admin dashboard.
-          </p>
-        ) : (
-          collaborators.map((person, index) => (
-            <motion.article
-              key={person.id}
-              initial={{ opacity: 0, y: 25 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.65, delay: index * 0.05 }}
-              whileHover={{ y: -4 }}
-              className="rounded-2xl border border-white/10 bg-[#123325]/42 overflow-hidden shadow-[0_16px_44px_rgba(0,0,0,0.28)]"
-            >
-              <div className="relative aspect-square w-full overflow-hidden">
+      <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {collaboratorList.map((person, index) => (
+          <motion.article
+            key={person.id}
+            initial={{ opacity: 0, y: 25 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.65, delay: index * 0.05 }}
+            whileHover={{ y: -4 }}
+            className="overflow-hidden rounded-2xl border border-white/10 bg-[#123325]/42 shadow-[0_16px_44px_rgba(0,0,0,0.28)]"
+          >
+            <div className="relative aspect-square w-full overflow-hidden border-b border-white/10">
+              {person.image_url ? (
                 <ProfileImageWithFallback
-                  src={person.image_url || "/placeholders/profile.svg"}
+                  src={person.image_url}
                   alt={person.name}
                   className="object-cover"
                   isExternal={!!person.image_url}
                 />
-              </div>
-              <div className="p-4">
-                <h3 className="text-base font-semibold text-[#ECF9F1]">{person.name}</h3>
-                <p className="mt-1 text-sm text-[#8CE0BD]">{person.affiliation}</p>
-              </div>
-            </motion.article>
-          ))
-        )}
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center bg-[#0F2B1F]/90 text-5xl font-semibold text-[#63D3A6] sm:text-6xl md:text-7xl">
+                  {person.name?.[0]?.toUpperCase() ?? "?"}
+                </div>
+              )}
+            </div>
+            <div className="p-5 md:p-6">
+              <h3 className="text-lg font-semibold text-[#ECF9F1] md:text-xl">{person.name}</h3>
+              {person.title ? (
+                <p className="mt-1 text-sm font-medium text-[#63D3A6] md:text-[0.95rem]">{person.title}</p>
+              ) : null}
+              {person.affiliation ? (
+                <p className="mt-3 text-sm leading-relaxed text-[#8CE0BD] whitespace-pre-line">{person.affiliation}</p>
+              ) : null}
+              {person.address ? (
+                <p className="mt-3 border-t border-white/10 pt-3 text-xs leading-relaxed text-[#C8E9D7]/90 whitespace-pre-line md:text-sm">
+                  {person.address}
+                </p>
+              ) : null}
+            </div>
+          </motion.article>
+        ))}
       </div>
     </section>
   );

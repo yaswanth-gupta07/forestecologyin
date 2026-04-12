@@ -41,9 +41,6 @@ export default function GovernmentHeader() {
             <a href="/team#collaborators" className="px-3 py-1.5 bg-[#63D3A6] text-white rounded-full font-medium hover:bg-[#4CAF87] transition-all shadow-sm">
               Collaborators
             </a>
-            <a href="#" className="px-3 py-1.5 bg-[#63D3A6] text-white rounded-full font-medium hover:bg-[#4CAF87] transition-all shadow-sm">
-              Publications
-            </a>
           </div>
         </div>
       </div>
@@ -137,7 +134,6 @@ export default function GovernmentHeader() {
                 <div className="mt-6 pt-6 border-t border-[#63D3A6]/30">
                   <div className="space-y-2">
                     <a href="/team#collaborators" className="block px-4 py-3 text-sm bg-[#63D3A6]/20 text-[#63D3A6] rounded-lg font-medium hover:bg-[#63D3A6]/30 transition-colors">Collaborators</a>
-                    <a href="#" className="block px-4 py-3 text-sm bg-[#63D3A6]/20 text-[#63D3A6] rounded-lg font-medium hover:bg-[#63D3A6]/30 transition-colors">Publications</a>
                   </div>
                 </div>
               </div>

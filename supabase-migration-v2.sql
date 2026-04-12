@@ -23,7 +23,9 @@ create table if not exists site_settings (
 create table if not exists collaborators (
   id uuid default gen_random_uuid() primary key,
   name text not null,
+  title text not null default '',
   affiliation text not null default '',
+  address text not null default '',
   image_url text,
   sort_order int not null default 0,
   created_at timestamptz default now()
