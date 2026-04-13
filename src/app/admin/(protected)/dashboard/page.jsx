@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import Image from "next/image";
+import { cleanupChannel, supabase } from "@/lib/supabase";
+import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
 import StatCard from "@/components/admin/StatCard";
 import Link from "next/link";
 import {
@@ -109,7 +111,7 @@ export default function DashboardPage() {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(ch);
+      cleanupChannel(ch);
     };
   }, []);
 
@@ -195,10 +197,12 @@ export default function DashboardPage() {
             <div className="divide-y divide-gray-50">
               {recentItems.map((item) => (
                 <div key={item.id} className="flex items-center gap-4 px-6 py-3 hover:bg-gray-50 transition-colors">
-                  <img
-                    src={item.image_url}
+                  <Image
+                    src={optimizeCloudinaryUrl(item.image_url)}
                     alt={item.title}
-                    className="w-14 h-14 rounded-lg object-cover border border-gray-200"
+                    width={56}
+                    height={56}
+                    className="rounded-lg object-cover border border-gray-200"
                   />
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-gray-800 truncate">

@@ -1,26 +1,33 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import Sidebar from "@/components/admin/Sidebar";
-import AdminNavbar from "@/components/admin/AdminNavbar";
-import { Toaster } from "react-hot-toast";
+
+const Sidebar = dynamic(() => import("@/components/admin/Sidebar"), { ssr: false });
+const AdminNavbar = dynamic(() => import("@/components/admin/AdminNavbar"), { ssr: false });
+const Toaster = dynamic(
+  () => import("react-hot-toast").then((mod) => mod.Toaster),
+  { ssr: false }
+);
 
 export default function ProtectedLayout({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
+    setMounted(true);
     checkAuth();
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!session) {
-        router.push("/admin/login");
+        router.replace("/admin/login");
       } else {
         setUser(session.user);
       }
@@ -46,7 +53,7 @@ export default function ProtectedLayout({ children }) {
     }
   }
 
-  if (loading) {
+  if (!mounted || loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50">
         <div className="text-center">

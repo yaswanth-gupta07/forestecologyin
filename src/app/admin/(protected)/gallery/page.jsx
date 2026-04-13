@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
+import dynamic from "next/dynamic";
 import { supabase } from "@/lib/supabase";
-import Modal from "@/components/admin/Modal";
-import ImageUpload from "@/components/admin/ImageUpload";
+import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
 import toast from "react-hot-toast";
 import {
   HiOutlinePlus,
@@ -11,6 +12,9 @@ import {
   HiOutlineTrash,
   HiOutlinePhotograph,
 } from "react-icons/hi";
+
+const Modal = dynamic(() => import("@/components/admin/Modal"), { ssr: false });
+const ImageUpload = dynamic(() => import("@/components/admin/ImageUpload"), { ssr: false });
 
 export default function GalleryPage() {
   const [images, setImages] = useState([]);
@@ -149,10 +153,11 @@ export default function GalleryPage() {
               className="bg-white rounded-xl border border-gray-200 overflow-hidden group hover:shadow-lg transition-shadow"
             >
               <div className="relative h-48 overflow-hidden">
-                <img
-                  src={item.image_url}
+                <Image
+                  src={optimizeCloudinaryUrl(item.image_url)}
                   alt={item.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>

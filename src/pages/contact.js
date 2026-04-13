@@ -1,17 +1,28 @@
 import { useState, useEffect } from "react";
+import Head from "next/head";
 import { motion } from "framer-motion";
 import GovernmentHeader from "../../components/GovernmentHeader";
 import Footer from "../../components/Footer/Footer";
-import { supabase } from "@/lib/supabase";
+import { cleanupChannel, supabase } from "@/lib/supabase";
 import { SITE_SETTING_DEFAULTS } from "@/lib/siteSettingKeys";
 
 async function loadContactInfo() {
   const keys = ["contact_email", "contact_phone"];
   const { data } = await supabase.from("site_settings").select("key, value").in("key", keys);
   const map = Object.fromEntries((data || []).map((r) => [r.key, r.value]));
+  const emailRaw = String(map.contact_email ?? "").trim().toLowerCase();
+  const phoneRaw = String(map.contact_phone ?? "").trim();
+  const hasDummyEmail =
+    !emailRaw ||
+    emailRaw === "forestlab@example.org" ||
+    emailRaw.includes("example.org");
+  const hasDummyPhone =
+    !phoneRaw ||
+    phoneRaw === "+00 0000 000 000" ||
+    phoneRaw.includes("000");
   return {
-    email: map.contact_email ?? SITE_SETTING_DEFAULTS.contact_email,
-    phone: map.contact_phone ?? SITE_SETTING_DEFAULTS.contact_phone,
+    email: hasDummyEmail ? SITE_SETTING_DEFAULTS.contact_email : map.contact_email,
+    phone: hasDummyPhone ? SITE_SETTING_DEFAULTS.contact_phone : map.contact_phone,
   };
 }
 
@@ -52,7 +63,7 @@ export default function ContactPage() {
 
     return () => {
       cancelled = true;
-      supabase.removeChannel(channel);
+      cleanupChannel(channel);
     };
   }, []);
 
@@ -85,6 +96,10 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-[#081C15] text-[#E8F8EE]">
+      <Head>
+        <title>Forest Ecology Lab | Contact</title>
+        <meta name="description" content="Contact the Forest Ecology Lab for collaboration, field research, and academic partnerships." />
+      </Head>
       <GovernmentHeader />
       <main className="mx-auto max-w-6xl px-6 pb-16 pt-20">
         <motion.section

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import { cleanupChannel, supabase } from "@/lib/supabase";
 import toast from "react-hot-toast";
 import { HiOutlineMail, HiOutlineRefresh } from "react-icons/hi";
 
@@ -43,7 +43,7 @@ export default function MessagesPage() {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      cleanupChannel(channel);
     };
   }, []);
 

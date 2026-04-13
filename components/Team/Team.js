@@ -1,7 +1,8 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
+import { cleanupChannel, supabase } from "@/lib/supabase";
 import { defaultCollaborators } from "@/lib/collaboratorsDefaults";
 import sreenathPhoto from "../../images/team/sreenath.png";
 import sharanaPhoto from "../../images/team/Sharana.jpg";
@@ -116,28 +117,19 @@ function memberBioParagraphs(m) {
   return [];
 }
 
-function ProfileImageWithFallback({ src, alt, className, isExternal }) {
+function ProfileImageWithFallback({ src, alt, className }) {
   const [currentSrc, setCurrentSrc] = useState(src);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => { setCurrentSrc(src); setFailed(false); }, [src]);
-
-  if (isExternal && !failed) {
-    return (
-      <img
-        src={currentSrc}
-        alt={alt}
-        className={`absolute inset-0 w-full h-full ${className || ""}`}
-        onError={() => { setFailed(true); setCurrentSrc("/placeholders/profile.svg"); }}
-      />
-    );
-  }
 
   return (
     <Image
       src={failed ? "/placeholders/profile.svg" : currentSrc}
       alt={alt}
       fill
+      loading="lazy"
+      sizes="(max-width: 768px) 100vw, 33vw"
       className={className}
       onError={() => { setFailed(true); setCurrentSrc("/placeholders/profile.svg"); }}
     />
@@ -161,7 +153,7 @@ export default function Team() {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      cleanupChannel(channel);
     };
   }, []);
 
@@ -176,7 +168,7 @@ export default function Team() {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      cleanupChannel(channel);
     };
   }, []);
 
@@ -221,9 +213,8 @@ export default function Team() {
       name: m.name,
       role: m.role,
       tagline: (m.tagline && m.tagline.trim()) || "",
-      photo: m.image_url || "/placeholders/profile.svg",
+      photo: optimizeCloudinaryUrl(m.image_url) || "/placeholders/profile.svg",
       bio: memberBioParagraphs(m),
-      isExternal: !!m.image_url,
     })),
   ];
 
@@ -250,8 +241,7 @@ export default function Team() {
           <ProfileImageWithFallback src={head.photo} alt={`${head.name} portrait`} className="object-cover" />
         </div>
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-[#63D3A6]">Lab Head</p>
-          <h3 className="mt-2 text-3xl font-semibold text-[#ECF9F1] md:text-4xl">{head.name}</h3>
+          <h3 className="text-3xl font-semibold text-[#ECF9F1] md:text-4xl">{head.name}</h3>
           <p className="mt-1 text-sm text-[#8CE0BD]">{head.role}</p>
           <p className="mt-4 rounded-xl border border-[#63D3A635] bg-[#0F2B1F]/70 px-4 py-3 text-sm text-[#D8F4E7]">
             {head.tagline}
@@ -278,7 +268,7 @@ export default function Team() {
             className="rounded-2xl border border-white/10 bg-[#123325]/42 p-5 shadow-[0_16px_44px_rgba(0,0,0,0.28)]"
           >
             <div className="relative mb-4 aspect-square w-full overflow-hidden rounded-xl border border-white/15">
-              <ProfileImageWithFallback src={member.photo} alt={`${member.name} profile`} className="object-cover" isExternal={member.isExternal} />
+              <ProfileImageWithFallback src={member.photo} alt={`${member.name} profile`} className="object-cover" />
             </div>
             <h3 className="text-lg font-semibold text-[#ECF9F1]">{member.name}</h3>
             <p className="mt-1 text-sm text-[#8CE0BD]">{member.role}</p>
@@ -337,10 +327,9 @@ export default function Team() {
             <div className="relative aspect-square w-full overflow-hidden border-b border-white/10">
               {person.image_url ? (
                 <ProfileImageWithFallback
-                  src={person.image_url}
+                  src={optimizeCloudinaryUrl(person.image_url)}
                   alt={person.name}
                   className="object-cover"
-                  isExternal={!!person.image_url}
                 />
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center bg-[#0F2B1F]/90 text-5xl font-semibold text-[#63D3A6] sm:text-6xl md:text-7xl">

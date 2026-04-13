@@ -14,7 +14,16 @@ const nextConfig = {
   // output: "export",
   basePath: isProd ? "/forest2" : "",
   assetPrefix: isProd ? "/forest2/" : "",
-  images: { unoptimized: true },
+  images: {
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 60 * 60 * 24 * 7,
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+      },
+    ],
+  },
   // Keep Next.js rooted to this project folder.
   outputFileTracingRoot: __dirname,
   turbopack: {
@@ -32,6 +41,9 @@ const nextConfig = {
     ];
     config.resolve.alias.tailwindcss = localTailwindcss;
     return config;
+  },
+  experimental: {
+    optimizePackageImports: ["framer-motion", "react-icons"],
   },
 };
 

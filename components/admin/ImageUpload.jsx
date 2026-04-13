@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import Image from "next/image";
 import { HiOutlineCloudUpload, HiOutlineX } from "react-icons/hi";
 import { uploadImage } from "@/lib/cloudinary";
 import toast from "react-hot-toast";
@@ -58,11 +59,7 @@ export default function ImageUpload({ onUpload, currentUrl, className = "" }) {
     <div className={className}>
       {preview ? (
         <div className="relative group rounded-lg overflow-hidden border border-gray-200">
-          <img
-            src={preview}
-            alt="Preview"
-            className="w-full h-48 object-cover"
-          />
+          <Image src={preview} alt="Preview" width={800} height={384} className="w-full h-48 object-cover" />
           {uploading && (
             <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
               <div className="w-8 h-8 border-3 border-white border-t-transparent rounded-full animate-spin" />

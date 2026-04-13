@@ -1,11 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
+import dynamic from "next/dynamic";
 import { supabase } from "@/lib/supabase";
-import Modal from "@/components/admin/Modal";
-import ImageUpload from "@/components/admin/ImageUpload";
+import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
 import toast from "react-hot-toast";
 import { HiOutlinePlus, HiOutlinePencil, HiOutlineTrash, HiOutlineUserGroup } from "react-icons/hi";
+
+const Modal = dynamic(() => import("@/components/admin/Modal"), { ssr: false });
+const ImageUpload = dynamic(() => import("@/components/admin/ImageUpload"), { ssr: false });
 
 export default function CollaboratorsPage() {
   const [rows, setRows] = useState([]);
@@ -143,9 +147,11 @@ export default function CollaboratorsPage() {
               <div className="flex items-start gap-4">
                 <div className="shrink-0">
                   {row.image_url ? (
-                    <img
-                      src={row.image_url}
-                      alt=""
+                    <Image
+                      src={optimizeCloudinaryUrl(row.image_url)}
+                      alt={row.name}
+                      width={64}
+                      height={64}
                       className="w-16 h-16 rounded-xl object-cover border border-gray-100"
                     />
                   ) : (

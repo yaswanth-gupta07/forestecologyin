@@ -1,6 +1,8 @@
+import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState, useMemo } from "react";
-import { supabase } from "@/lib/supabase";
+import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
+import { cleanupChannel, supabase } from "@/lib/supabase";
 import image1 from "../../images/1.jpeg";
 import image2 from "../../images/2.jpeg";
 import image3 from "../../images/3.jpeg";
@@ -32,6 +34,8 @@ function toSrc(img) {
 export default function Hero() {
   const [slideUrls, setSlideUrls] = useState(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [failedSrcs, setFailedSrcs] = useState({});
+  const [visibleSrc, setVisibleSrc] = useState("");
 
   const heroUrls = useMemo(() => {
     if (slideUrls && slideUrls.length > 0) return slideUrls;
@@ -47,7 +51,7 @@ export default function Hero() {
           .order("sort_order", { ascending: true })
           .order("created_at", { ascending: true });
         if (data?.length) {
-          setSlideUrls(data.map((r) => r.image_url).filter(Boolean));
+          setSlideUrls(data.map((r) => optimizeCloudinaryUrl(r.image_url)).filter(Boolean));
         } else {
           setSlideUrls([]);
         }
@@ -66,7 +70,7 @@ export default function Hero() {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      cleanupChannel(channel);
     };
   }, []);
 
@@ -91,22 +95,65 @@ export default function Hero() {
   const goNext = () => goTo(activeImageIndex + 1);
 
   const currentSrc = heroUrls[activeImageIndex] || "";
+  const displaySrc = failedSrcs[currentSrc]
+    ? `/placeholders/gallery.svg?v=${activeImageIndex}`
+    : currentSrc;
+  const imageKey = `${activeImageIndex}-${visibleSrc}`;
+
+  useEffect(() => {
+    if (!displaySrc) {
+      setVisibleSrc("/placeholders/gallery.svg");
+      return;
+    }
+
+    let cancelled = false;
+    const preload = new window.Image();
+    preload.src = displaySrc;
+    preload.onload = () => {
+      if (!cancelled) setVisibleSrc(displaySrc);
+    };
+    preload.onerror = () => {
+      if (cancelled) return;
+      if (currentSrc && !failedSrcs[currentSrc]) {
+        setFailedSrcs((prev) => ({ ...prev, [currentSrc]: true }));
+      }
+      setVisibleSrc(`/placeholders/gallery.svg?v=${activeImageIndex}`);
+    };
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeImageIndex, currentSrc, displaySrc, failedSrcs]);
+
+  useEffect(() => {
+    if (!heroUrls.length) return;
+    const nextSrc = heroUrls[(activeImageIndex + 1) % heroUrls.length];
+    if (!nextSrc) return;
+    const preloadNext = new window.Image();
+    preloadNext.src = nextSrc;
+  }, [activeImageIndex, heroUrls]);
 
   return (
     <section id="home" className="relative min-h-screen w-full overflow-hidden bg-[#081C15]">
       <div className="absolute inset-0">
         <AnimatePresence mode="sync">
           <motion.div
-            key={currentSrc}
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat will-change-transform"
-            style={{
-              backgroundImage: `url('${currentSrc}'), url('/placeholders/gallery.svg')`,
-            }}
+            key={imageKey}
+            className="absolute inset-0 will-change-transform"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: IMAGE_CROSSFADE_DURATION, ease: "easeInOut" }}
-          />
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
+            <Image
+              src={visibleSrc || "/placeholders/gallery.svg"}
+              alt="Forest Ecology hero slide"
+              fill
+              priority={activeImageIndex === 0}
+              sizes="100vw"
+              className="object-cover object-center"
+            />
+          </motion.div>
         </AnimatePresence>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#081C15]/40" />
       </div>

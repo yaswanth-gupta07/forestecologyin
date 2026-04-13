@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
-import Modal from "@/components/admin/Modal";
-import ImageUpload from "@/components/admin/ImageUpload";
+import Image from "next/image";
+import dynamic from "next/dynamic";
+import { cleanupChannel, supabase } from "@/lib/supabase";
+import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
 import toast from "react-hot-toast";
 import {
   HiOutlinePlus,
@@ -11,6 +12,9 @@ import {
   HiOutlineTrash,
   HiOutlineUserGroup,
 } from "react-icons/hi";
+
+const Modal = dynamic(() => import("@/components/admin/Modal"), { ssr: false });
+const ImageUpload = dynamic(() => import("@/components/admin/ImageUpload"), { ssr: false });
 
 export default function TeamPage() {
   const [members, setMembers] = useState([]);
@@ -38,7 +42,7 @@ export default function TeamPage() {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      cleanupChannel(channel);
     };
   }, []);
 
@@ -189,9 +193,11 @@ export default function TeamPage() {
               <div className="flex items-start gap-4">
                 <div className="shrink-0">
                   {member.image_url ? (
-                    <img
-                      src={member.image_url}
+                    <Image
+                      src={optimizeCloudinaryUrl(member.image_url)}
                       alt={member.name}
+                      width={64}
+                      height={64}
                       className="w-16 h-16 rounded-full object-cover border-2 border-forest-100"
                     />
                   ) : (

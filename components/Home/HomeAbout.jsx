@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { cleanupChannel, supabase } from "@/lib/supabase";
 import { SITE_SETTING_DEFAULTS } from "@/lib/siteSettingKeys";
 
 async function loadSettings() {
@@ -43,7 +43,7 @@ export default function HomeAbout() {
 
     return () => {
       cancelled = true;
-      supabase.removeChannel(channel);
+      cleanupChannel(channel);
     };
   }, []);
 

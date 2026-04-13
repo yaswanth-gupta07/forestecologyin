@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
-import Modal from "@/components/admin/Modal";
-import MultiImageUpload from "@/components/admin/MultiImageUpload";
+import Image from "next/image";
+import dynamic from "next/dynamic";
+import { cleanupChannel, supabase } from "@/lib/supabase";
+import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
 import toast from "react-hot-toast";
 import {
   HiOutlinePlus,
@@ -11,6 +12,9 @@ import {
   HiOutlineTrash,
   HiOutlineBeaker,
 } from "react-icons/hi";
+
+const Modal = dynamic(() => import("@/components/admin/Modal"), { ssr: false });
+const MultiImageUpload = dynamic(() => import("@/components/admin/MultiImageUpload"), { ssr: false });
 
 function rowToImageSlots(row) {
   const u = [];
@@ -55,7 +59,7 @@ export default function ResearchPage() {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      cleanupChannel(channel);
     };
   }, []);
 
@@ -200,9 +204,11 @@ export default function ResearchPage() {
               >
                 <div className="flex gap-4">
                   {imgs[0] && (
-                    <img
-                      src={imgs[0]}
+                    <Image
+                      src={optimizeCloudinaryUrl(imgs[0])}
                       alt={post.title}
+                      width={96}
+                      height={96}
                       className="w-24 h-24 rounded-lg object-cover border border-gray-100 shrink-0"
                     />
                   )}

@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
-import ImageUpload from "@/components/admin/ImageUpload";
-import Modal from "@/components/admin/Modal";
+import Image from "next/image";
+import dynamic from "next/dynamic";
+import { cleanupChannel, supabase } from "@/lib/supabase";
+import { optimizeCloudinaryUrl } from "@/lib/cloudinary";
 import toast from "react-hot-toast";
 import {
   HiOutlinePhotograph,
@@ -16,6 +17,9 @@ import {
   SITE_SETTING_DEFAULTS,
   SITE_SETTING_KEYS,
 } from "@/lib/siteSettingKeys";
+
+const Modal = dynamic(() => import("@/components/admin/Modal"), { ssr: false });
+const ImageUpload = dynamic(() => import("@/components/admin/ImageUpload"), { ssr: false });
 
 export default function HomeContentPage() {
   const [slides, setSlides] = useState([]);
@@ -44,7 +48,7 @@ export default function HomeContentPage() {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(ch);
+      cleanupChannel(ch);
     };
   }, []);
 
@@ -195,7 +199,7 @@ export default function HomeContentPage() {
                 key={s.id}
                 className="flex flex-wrap items-center gap-4 p-4 rounded-xl border border-gray-100 bg-gray-50/80"
               >
-                <img src={s.image_url} alt="" className="w-24 h-16 object-cover rounded-lg border border-gray-200" />
+                <Image src={optimizeCloudinaryUrl(s.image_url)} alt="" width={96} height={64} className="h-16 w-24 object-cover rounded-lg border border-gray-200" />
                 <p className="flex-1 text-xs text-gray-500 truncate min-w-[120px]">{s.image_url}</p>
                 <div className="flex items-center gap-1">
                   <button
